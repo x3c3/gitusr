@@ -15,7 +15,7 @@ type User struct {
 // add new user into git config file
 func AddUsr(name string, email string) (User, error) {
 	sectionName := "users." + name + ".name"
-	sectionEmail := "users." + email + ".email"
+	sectionEmail := "users." + name + ".email"
 	if err := exec.Command("git", "config", "--global", "--add", sectionEmail, email).Run(); err != nil {
 		//utils.CheckErr(err)
 		return User{}, err
