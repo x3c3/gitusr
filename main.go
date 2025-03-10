@@ -14,6 +14,11 @@ import (
 )
 
 func main() {
+
+	if len(os.Args) > 1 {
+		models.SetUsr(os.Args[1])
+	}
+
 	home, err := os.UserHomeDir()
 	utils.CheckErr(err)
 
@@ -23,9 +28,6 @@ func main() {
 	utils.CheckErr(err)
 	defer file.Close()
 
-	if len(os.Args) > 1 {
-		models.SetUsr(os.Args[1])
-	}
 	//re := regexp.MustCompile(`\[users\.(.*?)\]`)
 	re := regexp.MustCompile(`\[users\s+"(.*?)"\]`)
 
@@ -54,7 +56,6 @@ func main() {
 		u := "users \"" + v + "\""
 		//fmt.Println(u)
 		section := initdata.Section(u)
-		fmt.Println("before errr")
 		name, err := section.GetKey("name")
 		utils.CheckErr(err)
 		email, err := section.GetKey("email")
@@ -66,9 +67,7 @@ func main() {
 		users = append(users, user)
 	}
 
-	fmt.Println(users)
 	users = append(users, models.GetCurrentUsr())
-	fmt.Println(users)
 
 	for _, usr := range users {
 		//utils.PrintInfo("%s <%s>", usr.Name, usr.Email)
