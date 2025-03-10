@@ -7,18 +7,17 @@ import (
 	"path/filepath"
 	"regexp"
 
+	"github.com/fatih/color"
 	"github.com/surbytes/gitusr/models"
 	"github.com/surbytes/gitusr/utils"
 	"gopkg.in/ini.v1"
 )
 
 func main() {
-
 	home, err := os.UserHomeDir()
 	utils.CheckErr(err)
 
 	gitconfig := filepath.Join(home, ".gitconfig")
-	utils.PrintInfo(gitconfig)
 
 	file, err := os.Open(gitconfig)
 	utils.CheckErr(err)
@@ -42,13 +41,7 @@ func main() {
 		return
 	}
 
-	//list of keys
-	fmt.Println(usersKeys)
-
-	//currentusr()
-	//addusr("joe", "joe@pm.me")
-	//addusr("reda", "bu@pm.me")
-	//addusr("toto", "toto@pm.me")
+	//	fmt.Println(usersKeys)
 
 	initdata, err := ini.Load(gitconfig)
 	utils.CheckErr(err)
@@ -67,10 +60,15 @@ func main() {
 		users = append(users, user)
 	}
 
-	for _, usr := range users {
-		utils.PrintInfo("%s <%s>", usr.Name, usr.Email)
-	}
+	users = append(users, models.GetCurrentUsr())
 
-	models.GetCurrentUsr()
+	for _, usr := range users {
+		//utils.PrintInfo("%s <%s>", usr.Name, usr.Email)
+		if usr.Name == models.GetCurrentUsr().Name && usr.Email == models.GetCurrentUsr().Email {
+			color.Yellow("%s <%s> *", usr.Name, usr.Email)
+		} else {
+			fmt.Printf("%s <%s>\n", usr.Name, usr.Email)
+		}
+	}
 
 }
