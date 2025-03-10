@@ -1,10 +1,9 @@
 package models
 
 import (
+	"log"
 	"os/exec"
 	"strings"
-
-	"github.com/surbytes/gitusr/utils"
 )
 
 type User struct {
@@ -17,12 +16,10 @@ func AddUsr(name string, email string) (User, error) {
 	sectionName := "users." + name + ".name"
 	sectionEmail := "users." + name + ".email"
 	if err := exec.Command("git", "config", "--global", "--add", sectionEmail, email).Run(); err != nil {
-		//utils.CheckErr(err)
 		return User{}, err
 	}
 
 	if err := exec.Command("git", "config", "--global", "--add", sectionName, name).Run(); err != nil {
-		//utils.CheckErr(err)
 		return User{}, err
 	}
 
@@ -62,29 +59,33 @@ func SetUsr(name string) {
 	sectionEmail := "users." + name + ".email"
 
 	targetUsr, err := GetUsr(name)
-	utils.CheckErr(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	currentUsr := GetCurrentUsr()
 
 	// ADD the current user into users.
 
 	_, err = AddUsr(currentUsr.Name, currentUsr.Email)
-	utils.CheckErr(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if err := exec.Command("git", "config", "--global", "user.name", targetUsr.Name).Run(); err != nil {
-		utils.CheckErr(err)
+		log.Fatal(err)
 	}
 
 	if err := exec.Command("git", "config", "--global", "user.email", targetUsr.Email).Run(); err != nil {
-		utils.CheckErr(err)
+		log.Fatal(err)
 	}
 
 	if err := exec.Command("git", "config", "--global", "--unset", sectionName).Run(); err != nil {
-		utils.CheckErr(err)
+		log.Fatal(err)
 	}
 
 	if err := exec.Command("git", "config", "--global", "--unset", sectionEmail).Run(); err != nil {
-		utils.CheckErr(err)
+		log.Fatal(err)
 	}
 }
 
@@ -94,10 +95,14 @@ func GetCurrentUsr() User {
 	//var email strings.Builder
 	//var name strings.Builder
 	name, err := exec.Command("git", "config", "--global", "user.name").Output()
-	utils.CheckErr(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	email, err := exec.Command("git", "config", "--global", "user.email").Output()
-	utils.CheckErr(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	nname := strings.Trim(string(name), "\f\t\r\n ")
 	nemail := strings.Trim(string(email), "\f\t\r\n ")
@@ -112,12 +117,11 @@ func GetCurrentUsr() User {
 // delete user from git config file
 func (usr *User) DelUsr(name string, email string) {
 
-	utils.PrintInfo("Deleting user: %s <%s>", name, email)
 	if err := exec.Command("git", "config", "--global", "--unset-all", "users.email", usr.Email).Run(); err != nil {
-		utils.CheckErr(err)
+		log.Fatal(err)
 	}
 
 	if err := exec.Command("git", "config", "--global", "--unset-all", "users.name", usr.Name).Run(); err != nil {
-		utils.CheckErr(err)
+		log.Fatal(err)
 	}
 }
