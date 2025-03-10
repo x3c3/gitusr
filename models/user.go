@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"os/exec"
 	"strings"
 
@@ -14,24 +13,35 @@ type User struct {
 }
 
 // add new user into git config file
-func (usr *User) AddUsr(name string, email string) *User {
+func (usr *User) AddUsr(name string, email string) (*User, error) {
 	utils.PrintInfo("Adding user: %s <%s>", name, email)
-	if err := exec.Command("git", "config", "--global", "--add", "users.email", usr.Email).Run(); err != nil {
-		utils.CheckErr(err)
+	sectionName := "users." + usr.Name + ".name"
+	sectionEmail := "users." + usr.Email + ".email"
+	if err := exec.Command("git", "config", "--global", "--add", sectionEmail, usr.Email).Run(); err != nil {
+		//utils.CheckErr(err)
+		return &User{}, err
 	}
 
-	if err := exec.Command("git", "config", "--global", "--add", "users.name", usr.Name).Run(); err != nil {
-		utils.CheckErr(err)
+	if err := exec.Command("git", "config", "--global", "--add", sectionName, usr.Name).Run(); err != nil {
+		//utils.CheckErr(err)
+		return &User{}, err
 	}
 
 	return &User{
 		Name:  name,
 		Email: email,
-	}
+	}, nil
+}
+
+func SetUsr(name string, email string) {
+	/*
+		if err := exec.Command("git", "config", "--global", "", sectionName, usr.Name).Run(); err != nil {
+
+		}*/
 }
 
 // get the current user on git config file
-func GetCurrentUsr() {
+func GetCurrentUsr() User {
 
 	//var email strings.Builder
 	//var name strings.Builder
@@ -44,7 +54,10 @@ func GetCurrentUsr() {
 	nemail := strings.Trim(string(email), "\f\t\r\n ")
 	nname := strings.Trim(string(name), "\f\t\r\n ")
 
-	utils.PrintInfo("Current user: %s <%s>", nname, nemail)
+	return User{
+		Name:  nname,
+		Email: nemail,
+	}
 
 }
 
@@ -59,17 +72,4 @@ func (usr *User) DelUsr(name string, email string) {
 	if err := exec.Command("git", "config", "--global", "--unset-all", "users.name", usr.Name).Run(); err != nil {
 		utils.CheckErr(err)
 	}
-}
-
-// list users
-func listusrs() {
-	utils.PrintInfo("Listing users: ")
-	usrsemail, err := exec.Command("git", "config", "--global", "--get-all", "users.email").Output()
-	utils.CheckErr(err)
-	usrsname, err := exec.Command("git", "config", "--global", "--get-all", "users.name").Output()
-	utils.CheckErr(err)
-
-	utils.PrintInfo("%s", usrsemail)
-	utils.PrintInfo("%s", usrsname)
-	fmt.Println(usrsemail)
 }
