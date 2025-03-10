@@ -23,7 +23,11 @@ func main() {
 	utils.CheckErr(err)
 	defer file.Close()
 
-	re := regexp.MustCompile(`\[users\.(.*?)\]`)
+	if len(os.Args) > 1 {
+		models.SetUsr(os.Args[1])
+	}
+	//re := regexp.MustCompile(`\[users\.(.*?)\]`)
+	re := regexp.MustCompile(`\[users\s+"(.*?)"\]`)
 
 	var usersKeys []string
 	scanner := bufio.NewScanner(file)
@@ -41,14 +45,16 @@ func main() {
 		return
 	}
 
-	//	fmt.Println(usersKeys)
+	//fmt.Println(usersKeys)
 
 	initdata, err := ini.Load(gitconfig)
 	utils.CheckErr(err)
 	var users []models.User
 	for _, v := range usersKeys {
-		u := "users." + v
+		u := "users \"" + v + "\""
+		//fmt.Println(u)
 		section := initdata.Section(u)
+		fmt.Println("before errr")
 		name, err := section.GetKey("name")
 		utils.CheckErr(err)
 		email, err := section.GetKey("email")
@@ -60,7 +66,9 @@ func main() {
 		users = append(users, user)
 	}
 
+	fmt.Println(users)
 	users = append(users, models.GetCurrentUsr())
+	fmt.Println(users)
 
 	for _, usr := range users {
 		//utils.PrintInfo("%s <%s>", usr.Name, usr.Email)
