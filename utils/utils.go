@@ -6,8 +6,11 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
+	"strings"
 
 	"github.com/fatih/color"
+	"github.com/manifoldco/promptui"
 	"github.com/surbytes/gitusr/models"
 	"gopkg.in/ini.v1"
 )
@@ -76,16 +79,31 @@ func prepareUsers(usersKeys []string) []models.User {
 
 // render users
 func RenderUsers() {
-	if len(os.Args) > 1 {
-		models.SetUsr(os.Args[1])
-	}
 
+	var users []string
 	for _, usr := range prepareUsers(getGlobalUsersKeys()) {
 		if usr.Name == models.GetCurrentUsr().Name && usr.Email == models.GetCurrentUsr().Email {
-			color.Yellow("%s <%s> *", usr.Name, usr.Email)
+			users = append(users, color.YellowString("%s <%s> *", usr.Name, usr.Email))
 		} else {
-			fmt.Printf("%s <%s>\n", usr.Name, usr.Email)
+			users = append(users, fmt.Sprintf("%s <%s>", usr.Name, usr.Email))
 		}
+	}
+	slices.Reverse(users)
+	prompt := promptui.Select{
+		Label: "Select User",
+		Items: users,
+	}
+
+	_, result, err := prompt.Run()
+
+	if err != nil {
+		fmt.Printf("Prompot failed %v\n", err)
+		return
+	}
+
+	if len(result) > 0 {
+		rs := strings.Split(result, " ")
+		models.SetUsr(rs[0])
 	}
 }
 
