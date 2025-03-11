@@ -81,9 +81,12 @@ func prepareUsers(usersKeys []string) []models.User {
 func RenderUsers() {
 
 	var users []string
+	var currUser string
 	for _, usr := range prepareUsers(getGlobalUsersKeys()) {
 		if usr.Name == models.GetCurrentUsr().Name && usr.Email == models.GetCurrentUsr().Email {
-			users = append(users, color.YellowString("%s <%s> *", usr.Name, usr.Email))
+
+			currUser = color.YellowString("%s <%s> *", usr.Name, usr.Email)
+			users = append(users, currUser)
 		} else {
 			users = append(users, fmt.Sprintf("%s <%s>", usr.Name, usr.Email))
 		}
@@ -97,13 +100,17 @@ func RenderUsers() {
 	_, result, err := prompt.Run()
 
 	if err != nil {
-		fmt.Printf("Prompot failed %v\n", err)
+		fmt.Printf("Prompt failed %v\n", err)
 		return
 	}
 
 	if len(result) > 0 {
 		rs := strings.Split(result, " ")
-		models.SetUsr(rs[0])
+		if rs[0] == strings.Split(currUser, " ")[0] && rs[1] == ("<"+models.GetCurrentUsr().Email+">") {
+			color.Red("Selected user is already the active Git user. No changes made")
+		} else {
+			models.SetUsr(rs[0])
+		}
 	}
 }
 
