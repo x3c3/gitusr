@@ -21,6 +21,6 @@ cd gitusr; go build -o gitusr main.go
 ./gitusr
 ```
 # Configuration
-To ensure *gitusr* works correctly, users should configure their .gitignore file so that each `[users "<name>"]` section represents a global Git user, as follows:  
+To ensure *gitusr* works correctly, users should configure their .gitconfig file so that each `[users "<name>"]` section represents a global Git user, as follows:  
 
 ![image](https://github.com/user-attachments/assets/9f6f073d-acaa-4b96-bcad-5dc40423ab5b)
